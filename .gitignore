@@ -2,3 +2,6 @@
 ! ./gofile-downloader.py
 ! ./downloader.sh
 ! ./requirements.txt
+! ./.gitignore
+
+*
