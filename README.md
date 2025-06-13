@@ -1,5 +1,5 @@
 ```
 pkg install git
-cd games-downloader
+mkdir games-downloader && cd games-downloader
 git clone https://github.com/GabiAle97/games-downloader.git . && chmod +x downloader.sh && ./downloader.sh
 ```

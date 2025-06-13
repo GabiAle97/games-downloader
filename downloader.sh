@@ -10,7 +10,7 @@
 #pip3 install requirements.txt
 #python3 downloader.py
 
-pkg install aria2c
+pkg install aria2 jq python-pip
 
 hydralinks=("https://hydralinks.pages.dev/sources/steamrip.json" "https://hydralinks.pages.dev/sources/gog.json" "https://hydrasources.su/hydra.json" "https://hydralinks.pages.dev/sources/atop-games.json")
 if [ ! -f gamesobtained ]; then
@@ -63,12 +63,8 @@ source gamenames$origin.env
 read -p "Ingresa el nombre del juego: " busqueda
 encontrado=false
 coincidencias=()
-for i in "${!nombres[@]}"; do
-  if [[ "${nombres[i],,}" =~ "${busqueda,,}" ]]; then
-    coincidencias+=("$i")
-    encontrado=true
-  fi
-done
+mapfile -t coincidencias < <(printf "%s\n" "${nombres[@]}" | grep -i "$busqueda" -n | cut -d: -f1)
+encontrado=$(${#coincidencias[@]} -gt 0)
 
 if [ "$encontrado" = false ]; then
   echo "No se encontraron coincidencias."
@@ -120,7 +116,7 @@ fi
 if [[ "$url" =~ "1fichier" ]]; then
   cp 1fichier-downloader.py $PREFIX/glibc/opt/G_drive/
   cd $PREFIX/glibc/opt/G_drive/
-  python3 1fichier-downloader.py $url
+  python3 1fichier-downloader.py $url .
   rm 1fichier-downloader.py
   cd -
 fi
