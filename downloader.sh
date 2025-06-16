@@ -10,7 +10,7 @@
 #pip3 install requirements.txt
 #python3 downloader.py
 
-pkg install aria2 jq python-pip
+pkg install aria2 jq python-pip libxml2 libxslt unrar -y
 
 hydralinks=("https://hydralinks.pages.dev/sources/steamrip.json" "https://hydralinks.pages.dev/sources/gog.json" "https://hydrasources.su/hydra.json" "https://hydralinks.pages.dev/sources/atop-games.json")
 if [ ! -f gamesobtained ]; then
@@ -19,8 +19,8 @@ if [ ! -f gamesobtained ]; then
   for i in "${hydralinks[@]}"; do
     echo "obtaining $i"
     curl "$i" > gamelist
-    jq . gamelist > gamelist.json && rm gamelist
     export origin=$(echo "$i" | sed 's/https:\/\/hydralinks\.pages\.dev\/sources\///g' | sed 's/https:\/\/hydrasources\.su\///g' | sed 's/\.json//g')
+    jq . gamelist > gamelist.json && rm gamelist
     echo "export nombres=(" > gamenames$origin.env
     echo "export url=(" > gameurls$origin.env
     jq '.downloads[].title' gamelist.json >> gamenames$origin.env
@@ -61,12 +61,10 @@ source gamenames$origin.env
 
 # Buscador en el array de nombres
 read -p "Ingresa el nombre del juego: " busqueda
-encontrado=false
 coincidencias=()
 mapfile -t coincidencias < <(printf "%s\n" "${nombres[@]}" | grep -i "$busqueda" -n | cut -d: -f1)
-encontrado=$(${#coincidencias[@]} -gt 0)
 
-if [ "$encontrado" = false ]; then
+if [ ${#coincidencias[@]} -lt 1 ]; then
   echo "No se encontraron coincidencias."
   ./downloader.sh
   exit 0
@@ -75,7 +73,7 @@ fi
 echo "Elige el juego que vas a descargar:"
 counter=1
 for i in "${coincidencias[@]}"; do
-  printf "%s %s\n" "$counter) ${nombres[$i]}"
+  printf "%s %s\n" "$counter) ${nombres[$i-1]}"
   counter=$((counter + 1))
 done
 printf "%s %s\n" "$counter) Volver al menú principal"
