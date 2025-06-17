@@ -10,10 +10,11 @@
 #pip3 install requirements.txt
 #python3 downloader.py
 
-pkg install aria2 jq python-pip libxml2 libxslt unrar -y
 
 hydralinks=("https://hydralinks.pages.dev/sources/steamrip.json" "https://hydralinks.pages.dev/sources/gog.json" "https://hydrasources.su/hydra.json" "https://hydralinks.pages.dev/sources/atop-games.json")
 if [ ! -f gamesobtained ]; then
+  pkg install aria2 jq python-pip libxml2 libxslt unrar -y
+  pip3 install -r requirements.txt
   echo "GENERATING GAMELIST"
   echo ""
   for i in "${hydralinks[@]}"; do
@@ -85,7 +86,7 @@ while [ "$seleccion" -lt 1 ] || [ "$seleccion" -gt "$counter" ]; do
     echo "Elige el juego que vas a descargar:"
     counter=1
     for i in "${coincidencias[@]}"; do
-    printf "%s %s\n" "$counter) ${nombres[$i]}"
+    printf "%s %s\n" "$counter) ${nombres[$i-1]}"
     counter=$((counter + 1))
     done
     echo ""
@@ -96,12 +97,11 @@ if [ "$seleccion" -eq "$counter" ]; then
   exit 0
 fi
 counter=$((counter - 1))
-seleccion=$(($seleccion - 1))
-printf "%s\n" "${url[${coincidencias[$seleccion]}]}"
-url=$(printf "%s\n" "${url[${coincidencias[$seleccion]}]}")
+seleccion=$((seleccion - 1))
+echo "Va a descargar ${nombres[${coincidencias[$seleccion]}-1]}. Presione cualquier tecla para continuar..."
+read
+url=$(printf "%s\n" "${url[${coincidencias[$seleccion]}-1]}")
 url=$(echo $url | sed 's/"//g')
-
-pip3 install -r requirements.txt
 
 if [[ "$url" =~ "gofile" ]]; then
   cp gofile-downloader.py $PREFIX/glibc/opt/G_drive/
