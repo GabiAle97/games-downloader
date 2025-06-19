@@ -108,8 +108,8 @@ read
 url=$(printf "%s\n" "${url[${coincidencias[$seleccion]}-1]}")
 url=$(echo $url | sed 's/"//g')
 
-  mkdir -p $PREFIX/glibc/opt/G_drive/downloaded
-  mkdir -p $PREFIX/glibc/opt/G_drive/installed
+mkdir -p $PREFIX/glibc/opt/G_drive/downloaded
+mkdir -p $PREFIX/glibc/opt/G_drive/installed
 
 if [[ "$url" =~ "gofile" ]]; then
   cp gofile-downloader.py $PREFIX/glibc/opt/G_drive/
@@ -127,7 +127,7 @@ fi
 
 if [[ "$url" =~ "magnet" ]]; then
   cd $PREFIX/glibc/opt/G_drive/installed
-  aria2c $url
+  aria2c --seed-time=0 $url
   cd -
 fi
 
@@ -164,3 +164,33 @@ if [[ "$(ls downloaded)" =~ "rar" ]];then
   fi
 
   cd -
+
+  echo "Juego instalado en $PREFIX/glibc/opt/G_drive/installed/$gamefolder"
+  echo "Creando Acceso directo en escritorio..."
+
+  echo "Selecciona el exe del juego:"
+  counter=1
+  for i in $(find $PREFIX/glibc/opt/G_drive/installed/$gamefolder -type f -name "*.exe"); do
+    printf "%s) %s\n" "$counter" "$(basename "$i")"
+    counter=$((counter + 1))
+  done
+  echo "$counter) Volver al menú principal"
+  echo ""
+  read -p "Opción: " exe_seleccion
+  while [ "$exe_seleccion" -lt 1 ] || [ "$exe_seleccion" -gt "$counter" ]; do
+      echo "Opción $exe_seleccion incorrecta!"
+      echo "Selecciona el exe del juego:"
+      counter=1
+      for i in $(find $PREFIX/glibc/opt/G_drive/installed/$gamefolder -type f -name "*.exe"); do
+        printf "%s) %s\n" "$counter" "$(basename "$i")"
+        counter=$((counter + 1))
+      done
+      echo "$counter) Volver al menú principal"
+      echo ""
+      read -p "Opción: " exe_seleccion
+  done
+  if [ "$exe_seleccion" -eq "$counter" ]; then
+    exit 0
+  fi
+  cp link.sh.template ~/.shortcuts/$exe_seleccion.sh
+  sed -i "s|<PATH>|$(realpath "$(find $PREFIX/glibc/opt/G_drive/installed/$gamefolder -type f -name "$exe_seleccion.exe")")|g" ~/.shortcuts/$exe_seleccion.sh
