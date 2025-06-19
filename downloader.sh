@@ -170,9 +170,11 @@ if [[ "$(ls downloaded)" =~ "rar" ]];then
 
   echo "Selecciona el exe del juego:"
   counter=1
-  #mapfile -t execs < <(printf "%s\n" "${nombres[@]}"
-  for i in $(find $PREFIX/glibc/opt/G_drive/installed/$gamefolder -type f -name "*.exe"); do
-    printf "%s) %s\n" "$counter" "$(basename "$i")"
+  mapfile -t array < <(find $PREFIX/glibc/opt/G_drive/installed/$gamefolder -type f -name "*.exe" | sed 's| |<SPACE>|')
+
+  for i in ${array[@]}; do
+    i=$(echo "$i" | sed 's|<SPACE>| |')
+    printf "%s) %s\n" "$counter" "$i"
     counter=$((counter + 1))
   done
   echo "$counter) Volver al menú principal"
@@ -182,8 +184,10 @@ if [[ "$(ls downloaded)" =~ "rar" ]];then
       echo "Opción $exe_seleccion incorrecta!"
       echo "Selecciona el exe del juego:"
       counter=1
-      for i in $(find $PREFIX/glibc/opt/G_drive/installed/$gamefolder -type f -name "*.exe"); do
-        printf "%s) %s\n" "$counter" "$(basename "$i")"
+      for i in ${array[@]}; do
+        # Reemplazar <SPACE> por un espacio real para mostrar correctamente
+        i=$(echo "$i" | sed 's|<SPACE>| |')
+        printf "%s) %s\n" "$counter" "$i"
         counter=$((counter + 1))
       done
       echo "$counter) Volver al menú principal"
@@ -193,5 +197,7 @@ if [[ "$(ls downloaded)" =~ "rar" ]];then
   if [ "$exe_seleccion" -eq "$counter" ]; then
     exit 0
   fi
-  cp link.sh.template ~/.shortcuts/$exe_seleccion.sh
-  sed -i "s|<PATH>|$(realpath "$(find $PREFIX/glibc/opt/G_drive/installed/$gamefolder -type f -name "$exe_seleccion.exe")")|g" ~/.shortcuts/$exe_seleccion.sh
+  dir=$(echo "${array[$exe_seleccion-1]}" | sed 's|<SPACE>| |')
+  basename=$(echo $dir | sed 's|.*/||; s|\.[^.]*$||')
+  cp link.sh.template ~/.shortcuts/$basename.sh
+  sed -i "s|<PATH>|\"$(realpath "$dir")\"|g" ~/.shortcuts/$basename.sh
