@@ -13,8 +13,8 @@
 
 hydralinks=("https://hydralinks.pages.dev/sources/steamrip.json" "https://hydralinks.pages.dev/sources/gog.json" "https://hydrasources.su/hydra.json" "https://hydralinks.pages.dev/sources/atop-games.json")
 if [ ! -f gamesobtained ]; then
-  pkg install aria2 jq python-pip libxml2 libxslt unrar -y
-  pip3 install -r requirements.txt
+  #pkg install aria2 jq python-pip libxml2 libxslt unrar -y
+  #pip3 install -r requirements.txt
   echo "GENERATING GAMELIST"
   echo ""
   for i in "${hydralinks[@]}"; do
@@ -24,13 +24,17 @@ if [ ! -f gamesobtained ]; then
     jq . gamelist > gamelist.json && rm gamelist
     echo "export nombres=(" > gamenames$origin.env
     echo "export url=(" > gameurls$origin.env
+    echo "export filesizes=(" > gamefs$origin.env
     jq '.downloads[].title' gamelist.json >> gamenames$origin.env
     jq '.downloads[].uris[0]' gamelist.json >> gameurls$origin.env
-    echo "Games obtained: $(jq '.downloads | length' gamelist.json)" && rm gamelist.json
+    jq '.downloads[].fileSize' gamelist.json >> gamefs$origin.env
+    echo "Games obtained: $(jq '.downloads | length' gamelist.json)"
     echo ")" >> gamenames$origin.env
     echo ")" >> gameurls$origin.env
+    echo ")" >> gamefs$origin.env
     sed -i 's/`//g' gamenames$origin.env
     sed -i 's/`//g' gameurls$origin.env
+    sed -i 's/`//g' gamefs$origin.env
     touch gamesobtained
   done
 
@@ -59,6 +63,7 @@ export origin=$(echo "${hydralinks[$origen-1]}" | sed 's/https:\/\/hydralinks\.p
 # Declarar los arrays
 source gameurls$origin.env
 source gamenames$origin.env
+source gamefs$origin.env
 
 # Buscador en el array de nombres
 read -p "Ingresa el nombre del juego: " busqueda
@@ -98,30 +103,62 @@ if [ "$seleccion" -eq "$counter" ]; then
 fi
 counter=$((counter - 1))
 seleccion=$((seleccion - 1))
-echo "Va a descargar ${nombres[${coincidencias[$seleccion]}-1]}. Presione cualquier tecla para continuar..."
+echo "Va a descargar ${nombres[${coincidencias[$seleccion]}-1]} (Tamaño: ${filesizes[${coincidencias[$seleccion]}-1]}). Presione cualquier tecla para continuar..."
 read
 url=$(printf "%s\n" "${url[${coincidencias[$seleccion]}-1]}")
 url=$(echo $url | sed 's/"//g')
+
+  mkdir -p $PREFIX/glibc/opt/G_drive/downloaded
+  mkdir -p $PREFIX/glibc/opt/G_drive/installed
 
 if [[ "$url" =~ "gofile" ]]; then
   cp gofile-downloader.py $PREFIX/glibc/opt/G_drive/
   cd $PREFIX/glibc/opt/G_drive/
   python3 gofile-downloader.py $url
+  mv $(basename $url)/* ./downloaded/
+  rm -rf $(basename $url)
   rm gofile-downloader.py
   cd -
 fi
 
 if [[ "$url" =~ "1fichier" ]]; then
-  cp 1fichier-downloader.py $PREFIX/glibc/opt/G_drive/
-  cd $PREFIX/glibc/opt/G_drive/
-  python3 1fichier-downloader.py $url .
-  rm 1fichier-downloader.py
-  cd -
+  python3 1fichier-downloader.py --no-proxy $url $PREFIX/glibc/opt/G_drive/downloaded/
 fi
 
 if [[ "$url" =~ "magnet" ]]; then
-  cd $PREFIX/glibc/opt/G_drive/
+  cd $PREFIX/glibc/opt/G_drive/installed
   aria2c $url
   cd -
 fi
 
+cd $PREFIX/glibc/opt/G_drive/
+if [[ "$(ls downloaded)" =~ "rar" ]];then
+    unrar x downloaded/*.rar installed/
+    rm -rf downloaded/*.rar
+  fi
+  if [[ "$(ls downloaded)" =~ "zip" ]];then
+    unzip downloaded/*.zip -d installed/
+    rm -rf downloaded/*.zip
+  fi
+  if [[ "$(ls downloaded)" =~ "7z" ]];then
+    7z x downloaded/*.7z -oinstalled/
+    rm -rf downloaded/*.7z
+  fi
+  if [[ "$(ls downloaded)" =~ "tar" ]];then
+    tar -xf downloaded/*.tar -C installed/
+    rm -rf downloaded/*.tar
+  fi
+  if [[ "$(ls downloaded)" =~ "tar.gz" ]];then
+    tar -xzf downloaded/*.tar.gz -C installed/
+    rm -rf downloaded/*.tar.gz
+  fi
+  if [[ "$(ls downloaded)" =~ "tar.xz" ]];then
+    tar -xJf downloaded/*.tar.xz -C installed/
+    rm -rf downloaded/*.tar.xz
+  fi
+  if [[ "$(ls downloaded)" =~ "tar.bz2" ]];then
+    tar -xjf downloaded/*.tar.bz2 -C installed/
+    rm -rf downloaded/*.tar.bz2
+  fi
+
+  cd -
