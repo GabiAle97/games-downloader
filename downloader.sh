@@ -28,7 +28,7 @@ if [ ! -f gamesobtained ]; then
     jq '.downloads[].title' gamelist.json >> gamenames$origin.env
     jq '.downloads[].uris[0]' gamelist.json >> gameurls$origin.env
     jq '.downloads[].fileSize' gamelist.json >> gamefs$origin.env
-    echo "Games obtained: $(jq '.downloads | length' gamelist.json)"
+    echo "Games obtained: $(jq '.downloads | length' gamelist.json)" && rm gamelist.json
     echo ")" >> gamenames$origin.env
     echo ")" >> gameurls$origin.env
     echo ")" >> gamefs$origin.env
@@ -170,6 +170,7 @@ if [[ "$(ls downloaded)" =~ "rar" ]];then
 
   echo "Selecciona el exe del juego:"
   counter=1
+  #mapfile -t execs < <(printf "%s\n" "${nombres[@]}"
   for i in $(find $PREFIX/glibc/opt/G_drive/installed/$gamefolder -type f -name "*.exe"); do
     printf "%s) %s\n" "$counter" "$(basename "$i")"
     counter=$((counter + 1))
