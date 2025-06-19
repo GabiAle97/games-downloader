@@ -3,6 +3,7 @@
 ! ./downloader.sh
 ! ./requirements.txt
 ! ./README.md
+! ./link.sh.template
 ! ./.gitignore
 
 *
