@@ -13,8 +13,8 @@
 
 hydralinks=("https://hydralinks.pages.dev/sources/steamrip.json" "https://hydralinks.pages.dev/sources/gog.json" "https://hydrasources.su/hydra.json" "https://hydralinks.pages.dev/sources/atop-games.json")
 if [ ! -f gamesobtained ]; then
-  #pkg install aria2 jq python-pip libxml2 libxslt unrar -y
-  #pip3 install -r requirements.txt
+  pkg install aria2 jq python-pip libxml2 libxslt unrar -y
+  pip3 install -r requirements.txt
   echo "GENERATING GAMELIST"
   echo ""
   for i in "${hydralinks[@]}"; do
@@ -132,32 +132,34 @@ if [[ "$url" =~ "magnet" ]]; then
 fi
 
 cd $PREFIX/glibc/opt/G_drive/
+gamefolder=$(ls downloaded | awk -F '.' '{print $1}')
+mkdir -p installed/$gamefolder
 if [[ "$(ls downloaded)" =~ "rar" ]];then
-    unrar x downloaded/*.rar installed/
+    unrar x downloaded/*.rar installed/$gamefolder
     rm -rf downloaded/*.rar
   fi
   if [[ "$(ls downloaded)" =~ "zip" ]];then
-    unzip downloaded/*.zip -d installed/
+    unzip downloaded/*.zip -d installed/$gamefolder
     rm -rf downloaded/*.zip
   fi
   if [[ "$(ls downloaded)" =~ "7z" ]];then
-    7z x downloaded/*.7z -oinstalled/
+    7z x downloaded/*.7z -oinstalled/$gamefolder
     rm -rf downloaded/*.7z
   fi
   if [[ "$(ls downloaded)" =~ "tar" ]];then
-    tar -xf downloaded/*.tar -C installed/
+    tar -xf downloaded/*.tar -C installed/$gamefolder
     rm -rf downloaded/*.tar
   fi
   if [[ "$(ls downloaded)" =~ "tar.gz" ]];then
-    tar -xzf downloaded/*.tar.gz -C installed/
+    tar -xzf downloaded/*.tar.gz -C installed/$gamefolder
     rm -rf downloaded/*.tar.gz
   fi
   if [[ "$(ls downloaded)" =~ "tar.xz" ]];then
-    tar -xJf downloaded/*.tar.xz -C installed/
+    tar -xJf downloaded/*.tar.xz -C installed/$gamefolder
     rm -rf downloaded/*.tar.xz
   fi
   if [[ "$(ls downloaded)" =~ "tar.bz2" ]];then
-    tar -xjf downloaded/*.tar.bz2 -C installed/
+    tar -xjf downloaded/*.tar.bz2 -C installed/$gamefolder
     rm -rf downloaded/*.tar.bz2
   fi
 
