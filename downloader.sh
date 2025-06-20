@@ -13,7 +13,7 @@
 
 hydralinks=("https://hydralinks.pages.dev/sources/steamrip.json" "https://hydralinks.pages.dev/sources/gog.json" "https://hydrasources.su/hydra.json" "https://hydralinks.pages.dev/sources/atop-games.json")
 if [ ! -f gamesobtained ]; then
-  pkg install aria2 jq python-pip libxml2 libxslt unrar -y
+  pkg install aria2 jq python-pip libxml2 libxslt unrar icoutils -y
   pip3 install -r requirements.txt
   echo "GENERATING GAMELIST"
   echo ""
@@ -170,10 +170,10 @@ if [[ "$(ls downloaded)" =~ "rar" ]];then
 
   echo "Selecciona el exe del juego:"
   counter=1
-  mapfile -t array < <(find $PREFIX/glibc/opt/G_drive/installed/$gamefolder -type f -name "*.exe" | sed 's| |<SPACE>|')
+  mapfile -t array < <(find $PREFIX/glibc/opt/G_drive/installed/$gamefolder -type f -name "*.exe" | sed 's| |<SPACE>|g')
 
   for i in ${array[@]}; do
-    i=$(echo "$i" | sed 's|<SPACE>| |')
+    i=$(echo "$i" | sed 's|<SPACE>| |g')
     printf "%s) %s\n" "$counter" "$i"
     counter=$((counter + 1))
   done
@@ -186,7 +186,7 @@ if [[ "$(ls downloaded)" =~ "rar" ]];then
       counter=1
       for i in ${array[@]}; do
         # Reemplazar <SPACE> por un espacio real para mostrar correctamente
-        i=$(echo "$i" | sed 's|<SPACE>| |')
+        i=$(echo "$i" | sed 's|<SPACE>| |g')
         printf "%s) %s\n" "$counter" "$i"
         counter=$((counter + 1))
       done
@@ -197,7 +197,14 @@ if [[ "$(ls downloaded)" =~ "rar" ]];then
   if [ "$exe_seleccion" -eq "$counter" ]; then
     exit 0
   fi
-  dir=$(echo "${array[$exe_seleccion-1]}" | sed 's|<SPACE>| |')
-  basename=$(echo $dir | sed 's|.*/||; s|\.[^.]*$||')
-  cp link.sh.template ~/.shortcuts/$basename.sh
-  sed -i "s|<PATH>|\"$(realpath "$dir")\"|g" ~/.shortcuts/$basename.sh
+  dir=$(echo "${array[$exe_seleccion-1]}" | sed 's|<SPACE>| |g')
+  basename=$(echo "$dir" | sed 's|.*/||; s|\.[^.]*$||')
+  cp link.sh.template "/data/data/com.termux/files/home/.shortcuts/$basename.sh"
+  sed -i "s|<PATH>|\"$(realpath "$dir")\"|g" "/data/data/com.termux/files/home/.shortcuts/$basename.sh"
+  wrestool -x --type=14 "$dir" > icon.ico && icotool -x -w96 -h96 icon.ico && mv *.png "$basename.sh.png" && mv "$basename.sh.png" /data/data/com.termux/files/home/.shortcuts/icons/ && rm icon.ico
+
+  read -p "Se ha creado el script de arranque exitosamente. \
+  Para agregarlo, deberá añadir el widget manualmente \
+  en la página de inicio del dispositivo (Se necesita \
+  la aplicación Termux:Widgets) \
+  Presione cualquier tecla para continuar..." continue
