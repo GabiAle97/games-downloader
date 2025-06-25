@@ -1,6 +1,8 @@
-collection: Windows
-shortname: win
+collection: DarkOS Lite
+shortname: darkos
 extensions: sh
+assets.logo: assets/logo.png
+assets.box_front: assets/box_front.jpg
 launch: am start --user 0
   -n com.termux.widget/.TermuxLaunchShortcutActivity
   -d file://com.termux.widget/data/data/com.termux/files/home/.shortcuts/{file.name}
