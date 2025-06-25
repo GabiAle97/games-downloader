@@ -4,6 +4,8 @@
 ! ./requirements.txt
 ! ./README.md
 ! ./link.sh.template
+! ./metadata.pegasus.txt.template
+! ./pegasus.sh
 ! ./.gitignore
 
 *

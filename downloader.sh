@@ -1,19 +1,16 @@
 #!/bin/bash
 
-# Path to the image
-#IMAGE_PATH="test.png"
-#jp2a "$IMAGE_PATH"
-#
-# Get all links from the Telegram chat and save to a file
-#wget --user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36" -qO- "https://library.hydra.wiki/library" > links.txt
 
-#pip3 install requirements.txt
-#python3 downloader.py
-
-
-hydralinks=("https://hydralinks.pages.dev/sources/steamrip.json" "https://hydralinks.pages.dev/sources/gog.json" "https://hydrasources.su/hydra.json" "https://hydralinks.pages.dev/sources/atop-games.json")
+hydralinks=(
+"https://hydralinks.pages.dev/sources/steamrip.json"
+"https://hydralinks.pages.dev/sources/gog.json"
+"https://hydrasources.su/hydra.json"
+"https://hydralinks.pages.dev/sources/atop-games.json"
+"https://hydralinks.pages.dev/sources/dodi.json"
+"https://hydralinks.pages.dev/sources/kaoskrew.json"
+"https://hydralinks.pages.dev/sources/tinyrepacks.json")
 if [ ! -f gamesobtained ]; then
-  pkg install aria2 jq python-pip libxml2 libxslt unrar icoutils -y
+  pkg install aria2 jq python-pip libxml2 libxslt unrar icoutils tidy -y
   pip3 install -r requirements.txt
   echo "GENERATING GAMELIST"
   echo ""
@@ -38,7 +35,7 @@ if [ ! -f gamesobtained ]; then
     touch gamesobtained
   done
 
-fi 
+fi
 
 echo "Selecciona el origen de los juegos:"
 counter=1
@@ -49,7 +46,7 @@ done
 read -p "Seleccion: " origen
 
 while [ "$origen" -lt 1 ] || [ "$origen" -gt "$((counter - 1))" ]; do
-    echo "Opción $origen incorrecta!"
+    echo "Opcion $origen incorrecta!"
     echo "Selecciona el origen de los juegos:"
     counter=1
     for i in "${hydralinks[@]}"; do
@@ -82,9 +79,9 @@ for i in "${coincidencias[@]}"; do
   printf "%s %s\n" "$counter) ${nombres[$i-1]}"
   counter=$((counter + 1))
 done
-printf "%s %s\n" "$counter) Volver al menú principal"
+printf "%s %s\n" "$counter) Volver al menu principal"
 echo ""
-read -p "Opción: " seleccion
+read -p "Opcion: " seleccion
 
 while [ "$seleccion" -lt 1 ] || [ "$seleccion" -gt "$counter" ]; do
     echo "opcion $seleccion incorrecta! "
@@ -95,7 +92,7 @@ while [ "$seleccion" -lt 1 ] || [ "$seleccion" -gt "$counter" ]; do
     counter=$((counter + 1))
     done
     echo ""
-    read -p "Opción: " seleccion
+    read -p "Opcion: " seleccion
 done
 if [ "$seleccion" -eq "$counter" ]; then
   ./downloader.sh
@@ -103,7 +100,7 @@ if [ "$seleccion" -eq "$counter" ]; then
 fi
 counter=$((counter - 1))
 seleccion=$((seleccion - 1))
-echo "Va a descargar ${nombres[${coincidencias[$seleccion]}-1]} (Tamaño: ${filesizes[${coincidencias[$seleccion]}-1]}). Presione cualquier tecla para continuar..."
+echo "Va a descargar ${nombres[${coincidencias[$seleccion]}-1]} (Peso: ${filesizes[${coincidencias[$seleccion]}-1]}). Presione cualquier tecla para continuar..."
 read
 url=$(printf "%s\n" "${url[${coincidencias[$seleccion]}-1]}")
 url=$(echo $url | sed 's/"//g')
@@ -177,11 +174,11 @@ if [[ "$(ls downloaded)" =~ "rar" ]];then
     printf "%s) %s\n" "$counter" "$i"
     counter=$((counter + 1))
   done
-  echo "$counter) Volver al menú principal"
+  echo "$counter) Volver al menu principal"
   echo ""
-  read -p "Opción: " exe_seleccion
+  read -p "Opcion: " exe_seleccion
   while [ "$exe_seleccion" -lt 1 ] || [ "$exe_seleccion" -gt "$counter" ]; do
-      echo "Opción $exe_seleccion incorrecta!"
+      echo "Opcion $exe_seleccion incorrecta!"
       echo "Selecciona el exe del juego:"
       counter=1
       for i in ${array[@]}; do
@@ -190,21 +187,29 @@ if [[ "$(ls downloaded)" =~ "rar" ]];then
         printf "%s) %s\n" "$counter" "$i"
         counter=$((counter + 1))
       done
-      echo "$counter) Volver al menú principal"
+      echo "$counter) Volver al menu principal"
       echo ""
-      read -p "Opción: " exe_seleccion
+      read -p "Opcion: " exe_seleccion
   done
   if [ "$exe_seleccion" -eq "$counter" ]; then
     exit 0
   fi
   dir=$(echo "${array[$exe_seleccion-1]}" | sed 's|<SPACE>| |g')
-  basename=$(echo "$dir" | sed 's|.*/||; s|\.[^.]*$||')
+  basename=$(echo $dir | sed 's|./||; s|\.[^.]$||')
   cp link.sh.template "/data/data/com.termux/files/home/.shortcuts/$basename.sh"
-  sed -i "s|<PATH>|\"$(realpath "$dir")\"|g" "/data/data/com.termux/files/home/.shortcuts/$basename.sh"
-  wrestool -x --type=14 "$dir" > icon.ico && icotool -x -w96 -h96 icon.ico && mv *.png "$basename.sh.png" && mv "$basename.sh.png" /data/data/com.termux/files/home/.shortcuts/icons/ && rm icon.ico
+  sed -i "s|<PATH>|\"$(realpath "$dir")\"|g" "/data/data/com.termux/files/home/.shortcuts/$basename.sh" && chmod +x "/data/data/com.termux/files/home/.shortcuts/$basename.sh"
+  wrestool -x --type=14 "$dir" > icon.ico && icotool -x -w$(icotool -l icon.ico | awk '{print $3}' | awk -F "=" '{print $2}' | sort -nr | head -n1) icon.ico && mv *.png "$basename.sh.png" && mv "$basename.sh.png" /data/data/com.termux/files/home/.shortcuts/icons/ && rm icon.ico
 
-  read -p "Se ha creado el script de arranque exitosamente. \
-  Para agregarlo, deberá añadir el widget manualmente \
-  en la página de inicio del dispositivo (Se necesita \
-  la aplicación Termux:Widgets) \
-  Presione cualquier tecla para continuar..." continue
+  echo "Acceso directo creado en /data/data/com.termux/files/home/.shortcuts/$basename.sh"
+  read -p "Desea agregar el acceso directo a la pantalla principal? (s/n): " agregar
+  if [[ "$agregar" == "s" || "$agregar" == "S" ]]; then
+    echo "Cuando se abra la ventana \"Termux Shortcut\", seleccione la opcion \"$basename.sh\" para agregar a la pantalla principal. "
+    read -p "Presione Enter para continuar..."
+    am start -n com.termux.widget/.TermuxCreateShortcutActivity
+  fi
+
+  read -p "Desea generar los metadatos para utilizar en Pegasus? (s/n): " addPegasus
+  if [[ "$addPegasus" == "s" || "$addPegasus" == "S" ]]; then
+    finalname=$(echo "${nombres[${coincidencias[$seleccion]}-1]}" | sed -E 's/ *([vV][0-9][^ ]*|[+].*|GOG|FitGirl|Repack).*//' | sed "s|(||g" | sed -E 's/(alpha|beta|v)?[[:space:]]*[0-9]+\.[0-9]+(\.[0-9]+)?[^ ]*.*//I' | sed -E 's/(build)[[:space:]]*[0-9]+(\.[0-9]+)*[^ ]*.*//I' | sed -E 's/\b(Complete Edition|Deluxe Edition|Free Download|Full Game|Repack|GOG|FitGirl|All DLCs)\b//Ig' | sed "s|\.| |g")
+    pegasus.sh "$basename.sh" "$finalname"
+  fi

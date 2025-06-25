@@ -1,0 +1,7 @@
+collection: Windows
+shortname: win
+extensions: sh
+launch: am start --user 0
+  -n com.termux.widget/.TermuxLaunchShortcutActivity
+  -d file://com.termux.widget/data/data/com.termux/files/home/.shortcuts/{file.name}
+  --es com.termux.shortcut.token <TOKEN>

@@ -4,3 +4,4 @@ idna>=3.7
 requests>=2.32.3
 urllib3>=2.2.2
 lxml --prefer-binary
+yt-dlp
