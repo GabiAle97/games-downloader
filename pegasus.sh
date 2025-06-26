@@ -138,7 +138,7 @@ else
                     export videoExtension=$(ls assets/video/"$1".* | awk -F '.' '{print $NF}')
                 else
                     wget -q "$movie" -O "assets/video/temp/"
-                    videoExtension=$(ls assets/video/temp | awk -F '.' '{print $NF}')
+                    videoExtension=$(ls assets/video/temp | awk -F '.' '{print $NF}' | cut -d'?' -f1)
                     mv assets/video/temp/* "assets/video/$1.$videoExtension"
                 fi
             fi
