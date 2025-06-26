@@ -3,7 +3,6 @@
 if [ ! -f /sdcard/darkos.metadata/metadata.pegasus.txt ]; then 
     mkdir -p /sdcard/darkos.metadata/   
     cp metadata.pegasus.txt.template /sdcard/darkos.metadata/metadata.pegasus.txt
-
     export PEGASUS_TOKEN=$(cat /data/data/com.termux.widget/shared_prefs/com.termux.widget_preferences.xml | grep token | awk -F '>' '{print $2}' | awk -F '<' '{print $1}')
     sed -i "s/<TOKEN>/${PEGASUS_TOKEN}/g" /sdcard/darkos.metadata/metadata.pegasus.txt
 fi
@@ -80,6 +79,7 @@ else
     mkdir -p assets/background/
     mkdir -p assets/video/
     mkdir -p assets/video/temp/
+    cp darkos.bmp /sdcard/darkos.metadata/assets/
     title=$(cat game.html | grep "<title>" | sed "s|<title>||g" | sed "s| - LaunchBox Games Database</title>||g")
     developer=$(cat game.html | grep "<a href=\"https://gamesdb.launchbox-app.com/developers/games" | grep -oP 'href="\K[^"]+' | awk -F "https://gamesdb.launchbox-app.com/" '{print $2}' | sed "s|-| |g" | awk '{print $2}')
     publisher=$(cat game.html | grep "<a href=\"https://gamesdb.launchbox-app.com/publishers/games" | grep -oP 'href="\K[^"]+' | awk -F "https://gamesdb.launchbox-app.com/" '{print $2}' | sed "s|-| |g" | awk '{print $2}')
@@ -134,7 +134,7 @@ else
                 echo "No se descargará el video."
             else
                 if [[ "$movie" =~ "youtube" ]]; then
-                    yt-dlp $movie -o "assets/video/$1"
+                    yt-dlp $movie --cookies cookies -o "assets/video/$1"
                     export videoExtension=$(ls assets/video/"$1".* | awk -F '.' '{print $NF}')
                 else
                     wget -q "$movie" -P "assets/video/temp/"
@@ -169,5 +169,6 @@ else
     cp -r assets /sdcard/darkos.metadata/
     echo "Metadata for $title has been created successfully."
      
-
+    rm -rf temp.html game.html imgsrcs imgname searchresults searchuris searchindex
+    
 fi
