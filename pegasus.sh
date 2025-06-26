@@ -74,7 +74,7 @@ else
     mkdir -p assets/background/
     mkdir -p assets/video/
     mkdir -p assets/video/temp/
-    title=$(cat game.html | grep title | sed "s|<title>||g" | sed "s| - LaunchBox Games Database</title>||g")
+    title=$(cat game.html | grep "<title>" | sed "s|<title>||g" | sed "s| - LaunchBox Games Database</title>||g")
     developer=$(cat game.html | grep "<a href=\"https://gamesdb.launchbox-app.com/developers/games" | grep -oP 'href="\K[^"]+' | awk -F "https://gamesdb.launchbox-app.com/" '{print $2}' | sed "s|-| |g" | awk '{print $2}')
     publisher=$(cat game.html | grep "<a href=\"https://gamesdb.launchbox-app.com/publishers/games" | grep -oP 'href="\K[^"]+' | awk -F "https://gamesdb.launchbox-app.com/" '{print $2}' | sed "s|-| |g" | awk '{print $2}')
     genre=$(cat game.html | grep https://gamesdb.launchbox-app.com/genres/games | grep -oP 'href="\K[^"]+' | awk -F "https://gamesdb.launchbox-app.com/" '{print $2}' | sed "s|-| |g" | awk '{print $2}' | sed ':a;N;$!ba;s/\n/, /g')
