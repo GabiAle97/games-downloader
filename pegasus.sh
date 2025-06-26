@@ -2,7 +2,7 @@
 
 if [ ! -f metadata.pegasus.txt ]; then    
     cp metadata.pegasus.txt.template metadata.pegasus.txt
-    export PEGASUS_TOKEN=$(cat /data/data/com.termux.widget/shared_prefs/com.termux.widget_preferences.xml | grep token | awk -F '>' '{print $2}' | awk -F '<' '{print $1}')
+    export PEGASUS_TOKEN=$(cat /data/data/com.termux.widget/shared_prefs/com.termux.widget_preferences.xml | grep token | awk -F '>' '{print dolar2}' | awk -F '<' '{print dolar1}')
     sed -i "s/<TOKEN>/${PEGASUS_TOKEN}/g" metadata.pegasus.txt
 fi
 
@@ -11,15 +11,15 @@ nameURLed=$(echo -n "$name" | jq -sRr @uri)
 echo "Buscando $nameURLed en LaunchBox Games Database..."
 echo "https://gamesdb.launchbox-app.com/games/results/?platform=windows&title=$nameURLed"
 curl "https://gamesdb.launchbox-app.com/games/results/?platform=windows&title=$nameURLed" > temp.html
-results=$(cat temp.html | grep "<h3 b-r4eeokcanc>" | awk '{print tolower($0)}' | awk -F '>' '{print $2}' | awk -F '<' '{print $1}' | wc -l)
+results=$(cat temp.html | grep "<h3 b-r4eeokcanc>" | awk '{print tolower($0)}' | awk -F '>' '{print dolar2}' | awk -F '<' '{print dolar1}' | wc -l)
 echo "$results resultados encontrados para $nameURLed"
 if [[ "$results" -lt "1" ]]; then
     echo "No results found for $name."
-    lastWord=$(echo "$name" | awk '{print $NF}')
+    lastWord=$(echo "$name" | awk '{print dolarNF}')
     name=$(echo "$name" | sed "s| $lastWord||g")
     if [[ "$lastWord" != "$name" ]];then
         echo "Trying to drop the last word and search again..."
-        ./pegasus.sh "$1" "$name"
+        ./pegasus.sh "\"$1\"" "$name"
         exit 0
     else
         echo "No se han encontrado resultados para $name"
@@ -27,10 +27,10 @@ if [[ "$results" -lt "1" ]]; then
     fi
 else
     if [[ "$results" == "1" ]]; then
-        namefound=$(cat temp.html | grep "<h3 b-r4eeokcanc>" | awk '{print tolower($0)}' | awk -F '>' '{print $2}' | awk -F '<' '{print $1}')
+        namefound=$(cat temp.html | grep "<h3 b-r4eeokcanc>" | awk '{print tolower($0)}' | awk -F '>' '{print dolar2}' | awk -F '<' '{print dolar1}')
         echo "$(echo $namefound | sed 's/[^a-zA-Z0-9 ]//g') == $(echo $name | sed 's/[^a-zA-Z0-9 ]//g')"
         if [[ "$(echo $namefound | sed 's/[^a-zA-Z0-9 ]//g')" =~ "$(echo $name | sed 's/[^a-zA-Z0-9 ]//g')" ]]; then
-            uri="$(cat temp.html | grep "href=\"/games/details/" | awk '{print $4}' | awk -F '=' '{print $2}' | awk -F '>' '{print $1}' | sed 's/\"//g')"
+            uri="$(cat temp.html | grep "href=\"/games/details/" | awk '{print dolar4}' | awk -F '=' '{print dolar2}' | awk -F '>' '{print dolar1}' | sed 's/\"//g')"
         else
             echo "No hay resultados de $name"
             exit 0            
@@ -40,8 +40,8 @@ else
         sed -i "s|<|\"<|g" temp.html
         echo "export results=(" > searchresults
         echo "export uris=(" > searchuris
-        echo "$(cat temp.html | grep "<h3 b-r4eeokcanc>" | awk '{print tolower($0)}' | awk -F '>' '{print $2}' | awk -F '<' '{print $1}')" >> searchresults 
-        echo "$(cat temp.html | grep "href=\"/games/details/" | awk '{print $4}' | awk -F '=' '{print $2}' | awk -F '>' '{print $1}')" >> searchuris
+        echo "$(cat temp.html | grep "<h3 b-r4eeokcanc>" | awk '{print tolower($0)}' | awk -F '>' '{print dolar2}' | awk -F '<' '{print dolar1}')" >> searchresults 
+        echo "$(cat temp.html | grep "href=\"/games/details/" | awk '{print dolar4}' | awk -F '=' '{print dolar2}' | awk -F '>' '{print dolar1}')" >> searchuris
         echo ")" >> searchresults
         echo ")" >> searchuris
         source searchresults
@@ -75,14 +75,14 @@ else
     mkdir -p assets/video/
     mkdir -p assets/video/temp/
     title=$(cat game.html | grep "<title>" | sed "s|<title>||g" | sed "s| - LaunchBox Games Database</title>||g")
-    developer=$(cat game.html | grep "<a href=\"https://gamesdb.launchbox-app.com/developers/games" | grep -oP 'href="\K[^"]+' | awk -F "https://gamesdb.launchbox-app.com/" '{print $2}' | sed "s|-| |g" | awk '{print $2}')
-    publisher=$(cat game.html | grep "<a href=\"https://gamesdb.launchbox-app.com/publishers/games" | grep -oP 'href="\K[^"]+' | awk -F "https://gamesdb.launchbox-app.com/" '{print $2}' | sed "s|-| |g" | awk '{print $2}')
-    genre=$(cat game.html | grep https://gamesdb.launchbox-app.com/genres/games | grep -oP 'href="\K[^"]+' | awk -F "https://gamesdb.launchbox-app.com/" '{print $2}' | sed "s|-| |g" | awk '{print $2}' | sed ':a;N;$!ba;s/\n/, /g')
+    developer=$(cat game.html | grep "<a href=\"https://gamesdb.launchbox-app.com/developers/games" | grep -oP 'href="\K[^"]+' | awk -F "https://gamesdb.launchbox-app.com/" '{print dolar2}' | sed "s|-| |g" | awk '{print dolar2}')
+    publisher=$(cat game.html | grep "<a href=\"https://gamesdb.launchbox-app.com/publishers/games" | grep -oP 'href="\K[^"]+' | awk -F "https://gamesdb.launchbox-app.com/" '{print dolar2}' | sed "s|-| |g" | awk '{print dolar2}')
+    genre=$(cat game.html | grep https://gamesdb.launchbox-app.com/genres/games | grep -oP 'href="\K[^"]+' | awk -F "https://gamesdb.launchbox-app.com/" '{print dolar2}' | sed "s|-| |g" | awk '{print dolar2}' | sed ':a;N;$!ba;s/\n/, /g')
     description=$(cat game.html | grep "meta name=\"description" | grep -oP 'content="\K[^"]+')
     movie=$(sed -n "$(($(cat game.html | grep -n Video | cut -d: -f1) + 1))p" game.html | grep -oP 'href="\K[^"]+')
-    maxPlayers=$(sed -n "$(($(cat game.html | grep -n "Max Players" | cut -d: -f1) + 1))p" game.html | awk -F ">" '{print $5}' | awk -F "<" '{print $1}')
-    releaseDate=$(date -d "$(sed -n "$(($(cat game.html | grep -n "Release Date" | cut -d: -f1) + 1))p" game.html | awk -F ">" '{print $5}' | awk -F "<" '{print $1}')" +"%Y-%m-%d")
-    rating=$(echo "scale=2; ($(cat game.html | grep "Game rating of" | grep -oP 'style="width:\K[^"]+' | awk -F "em;" '{print $1}') / 5) * 100" | bc |  awk -F "." '{print $1}')
+    maxPlayers=$(sed -n "$(($(cat game.html | grep -n "Max Players" | cut -d: -f1) + 1))p" game.html | awk -F ">" '{print dolar5}' | awk -F "<" '{print dolar1}')
+    releaseDate=$(date -d "$(sed -n "$(($(cat game.html | grep -n "Release Date" | cut -d: -f1) + 1))p" game.html | awk -F ">" '{print dolar5}' | awk -F "<" '{print dolar1}')" +"%Y-%m-%d")
+    rating=$(echo "scale=2; ($(cat game.html | grep "Game rating of" | grep -oP 'style="width:\K[^"]+' | awk -F "em;" '{print dolar1}') / 5) * 100" | bc |  awk -F "." '{print dolar1}')
     echo "export imgsrcs=(" > imgsrcs
     echo "export imgname=(" > imgname
     cat game.html | grep "images" | grep -oP 'src="\K[^"]+' | sed 's/^/"/; s/$/"/' >> imgsrcs
@@ -97,43 +97,43 @@ else
         echo "Imagen: $i"
         if [[ "$i" =~ "Box" ]]; then
             if [[ "$i" =~ "Front" ]]; then
-                if [[ "$(ls assets/covers/$1.boxfront*)" == "" ]]; then
-                    wget -q "${imgsrcs[$counter]}" -O "assets/covers/$1.boxfront.$(echo "${imgsrcs[$counter]}" | awk -F '.' '{print $NF}')"
-                    export boxfront="assets/covers/$1.boxfront.$(echo "${imgsrcs[$counter]}" | awk -F '.' '{print $NF}')"
+                if [[ "$(ls assets/covers/\"$1\".boxfront*)" == "" ]]; then
+                    wget -q "${imgsrcs[$counter]}" -O "assets/covers/\"$1\".boxfront.$(echo "${imgsrcs[$counter]}" | awk -F '.' '{print dolarNF}')"
+                    export boxfront="assets/covers/\"$1\".boxfront.$(echo "${imgsrcs[$counter]}" | awk -F '.' '{print dolarNF}')"
                 fi
             fi
         elif [[ "$i" =~ "Screenshot" ]]; then
-            if [[ ! -f "assets/screenshots/$1.screenshot.$shotnum.$(echo "${imgsrcs[$counter]}" | awk -F '.' '{print $NF}')" ]]; then
-                wget -q "${imgsrcs[$counter]}" -O "assets/screenshots/$1.screenshot.$shotnum.$(echo "${imgsrcs[$counter]}" | awk -F '.' '{print $NF}')"
+            if [[ ! -f "assets/screenshots/\"$1\".screenshot.$shotnum.$(echo "${imgsrcs[$counter]}" | awk -F '.' '{print dolarNF}')" ]]; then
+                wget -q "${imgsrcs[$counter]}" -O "assets/screenshots/\"$1\".screenshot.$shotnum.$(echo "${imgsrcs[$counter]}" | awk -F '.' '{print dolarNF}')"
             fi
             shotnum=$((shotnum + 1))
         elif [[ "$i" =~ "Logo" ]]; then
-            if [[ "$(ls assets/covers/$1.logo.*)" == "" ]]; then
-                wget -q "${imgsrcs[$counter]}" -O "assets/covers/$1.logo.$(echo "${imgsrcs[$counter]}" | awk -F '.' '{print $NF}')"
-                export logo="assets/covers/$1.logo.$(echo "${imgsrcs[$counter]}" | awk -F '.' '{print $NF}')"
+            if [[ "$(ls assets/covers/\"$1\".logo.*)" == "" ]]; then
+                wget -q "${imgsrcs[$counter]}" -O "assets/covers/\"$1\".logo.$(echo "${imgsrcs[$counter]}" | awk -F '.' '{print dolarNF}')"
+                export logo="assets/covers/\"$1\".logo.$(echo "${imgsrcs[$counter]}" | awk -F '.' '{print dolarNF}')"
             fi
         elif [[ "$i" =~ "Illustration" ]]; then
-            if [[ "$(ls assets/covers/$1.background.*)" == "" ]]; then
-                wget -q "${imgsrcs[$counter]}" -O "assets/background/$1.background.$(echo "${imgsrcs[$counter]}" | awk -F '.' '{print $NF}')"
-                export background="assets/background/$1.background.$(echo "${imgsrcs[$counter]}" | awk -F '.' '{print $NF}')"
+            if [[ "$(ls assets/covers/\"$1\".background.*)" == "" ]]; then
+                wget -q "${imgsrcs[$counter]}" -O "assets/background/\"$1\".background.$(echo "${imgsrcs[$counter]}" | awk -F '.' '{print dolarNF}')"
+                export background="assets/background/\"$1\".background.$(echo "${imgsrcs[$counter]}" | awk -F '.' '{print dolarNF}')"
             fi
         
         fi
         counter=$((counter + 1))
     done
     if [[ "$movie" != "" ]]; then
-        if [[ ! -f "assets/video/$1.*" ]]; then
+        if [[ ! -f "assets/video/\"$1\".*" ]]; then
             read -p "¿Quieres descargar el video? (s/n): " downloadVideo
             if [[ "$downloadVideo" != "s" && "$downloadVideo" != "S" ]]; then
                 echo "No se descargará el video."
             else
                 if [[ "$movie" =~ "youtube" ]]; then
-                    yt-dlp $movie -o "assets/video/$1"
-                    export videoExtension=$(ls assets/video/$1.* | awk -F '.' '{print $NF}')
+                    yt-dlp $movie -o "assets/video/\"$1\""
+                    export videoExtension=$(ls assets/video/\"$1\".* | awk -F '.' '{print dolarNF}')
                 else
                     wget -q "$movie" -O "assets/video/temp/"
-                    videoExtension=$(ls assets/video/temp | awk -F '.' '{print $NF}')
-                    mv assets/video/temp/* assets/video/$1.$videoExtension
+                    videoExtension=$(ls assets/video/temp | awk -F '.' '{print dolarNF}')
+                    mv assets/video/temp/* assets/video/\"$1\".$videoExtension
                 fi
             fi
         fi
@@ -141,7 +141,7 @@ else
 
     echo "" >> metadata.pegasus.txt
     echo "game: $title" >> metadata.pegasus.txt
-    echo "file: $1" >> metadata.pegasus.txt
+    echo "file: \"$1\"" >> metadata.pegasus.txt
     echo "developer: $developer" >> metadata.pegasus.txt
     echo "publisher: $publisher" >> metadata.pegasus.txt
     echo "genre: $genre" >> metadata.pegasus.txt
@@ -153,10 +153,10 @@ else
     echo "assets.logo: $logo" >> metadata.pegasus.txt
     echo "assets.background: $background" >> metadata.pegasus.txt
     if [[ "$downloadVideo" == "s" || "$downloadVideo" == "S" ]]; then
-        echo "assets.video: assets/video/$1.$videoExtension" >> metadata.pegasus.txt
+        echo "assets.video: assets/video/\"$1\".$videoExtension" >> metadata.pegasus.txt
     fi
     echo "assets.screenshot:[ " >> metadata.pegasus.txt
-    for i in $(ls assets/screenshots/$1.screenshot.*); do
+    for i in $(ls assets/screenshots/\"$1\".screenshot.*); do
         echo "    $i" >> metadata.pegasus.txt
     done
     echo " ]" >> metadata.pegasus.txt
