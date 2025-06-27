@@ -78,7 +78,6 @@ else
     mkdir -p assets/screenshots/
     mkdir -p assets/background/
     mkdir -p assets/video/
-    mkdir -p assets/video/temp/
     title=$(cat game.html | grep "<title>" | sed "s|<title>||g" | sed "s| - LaunchBox Games Database</title>||g")
     developer=$(cat game.html | grep "<a href=\"https://gamesdb.launchbox-app.com/developers/games" | grep -oP 'href="\K[^"]+' | awk -F "https://gamesdb.launchbox-app.com/" '{print $2}' | sed "s|-| |g" | awk '{print $2}')
     publisher=$(cat game.html | grep "<a href=\"https://gamesdb.launchbox-app.com/publishers/games" | grep -oP 'href="\K[^"]+' | awk -F "https://gamesdb.launchbox-app.com/" '{print $2}' | sed "s|-| |g" | awk '{print $2}')
@@ -132,13 +131,10 @@ else
             if [[ "$downloadVideo" != "s" && "$downloadVideo" != "S" ]]; then
                 echo "No se descargará el video."
             else
-                if [[ "$movie" =~ "youtube" ]]; then
-                    yt-dlp $movie --cookies cookies -o "assets/video/$1"
-                    export videoExtension=$(ls assets/video/"$1".* | awk -F '.' '{print $NF}')
+                if [[ "$movie" =~ "youtube" ]] || [[ "$movie" =~ "youtu.be" ]] || [[ "$movie" =~ "yt.be" ]]; then
+                    yt-dlp -f mp4 $movie --cookies cookies -o "assets/video/$1"
                 else
-                    wget -q "$movie" -P "assets/video/temp/"
-                    videoExtension=$(ls assets/video/temp | awk -F '.' '{print $NF}' | cut -d'?' -f1)
-                    mv assets/video/temp/* "assets/video/$1.$videoExtension"
+                    wget -q "$movie" -O "assets/video/$1"
                 fi
             fi
         fi
@@ -158,7 +154,7 @@ else
     echo "assets.logo: $logo" >> /sdcard/darkos.metadata/metadata.pegasus.txt
     echo "assets.background: $background" >> /sdcard/darkos.metadata/metadata.pegasus.txt
     if [[ "$downloadVideo" == "s" || "$downloadVideo" == "S" ]]; then
-        echo "assets.video: assets/video/$1.$videoExtension" >> /sdcard/darkos.metadata/metadata.pegasus.txt
+        echo "assets.video: assets/video/$1" >> /sdcard/darkos.metadata/metadata.pegasus.txt
     fi
     echo "assets.screenshot:[ " >> /sdcard/darkos.metadata/metadata.pegasus.txt
     for i in assets/screenshots/"$1".screenshot.*; do
